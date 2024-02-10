@@ -3,7 +3,7 @@
 Source Code Management - Managing code with git or Azure repo
 Pull Request
 
-Azure Pipeline - Modified by Haripada, last modified in GIT UI
+Azure Pipeline - Modified by Hari
   - YAML Syntax
   - Pipeline Structure 
   - Trigger
