@@ -1,0 +1,79 @@
+trigger: 
+  - main
+  
+pr: none
+
+variables:
+  - group: webapp-variables 
+  - name: task
+    value: "Test Pipeline tasks:"
+
+resources:
+  - repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Stage1
+    jobs:
+      - job: Job1
+        steps:
+          - script: echo Hello, $(task)
+            displayName: 'Run a one-line script'  
+          - task: AzureCLI@2
+            displayName: Azure CLI
+            inputs:
+              azureSubscription: $(ServiceConnection)
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                az --version
+                az account show
+  
+  # - stage: Stage2
+  #   jobs:
+  #     - job: Job1
+  #       steps:
+  #         - task: CmdLine@2
+  #           displayName: "CmdLine Task: Run a command line script using Bash on Linux and macOS and cmd.exe on Windows."
+  #           inputs:
+  #             script: |         
+  #               echo "Build.ArtifactStagingDirectory:" 
+  #               echo "$(Build.ArtifactStagingDirectory)"
+      
+  #               echo "Build.BinariesDirectory:" 
+  #               echo "$(Build.BinariesDirectory)"
+      
+  #               echo "Build.SourcesDirectory:"
+  #               echo "$(Build.SourcesDirectory)"
+
+  #               echo  "System.DefaultWorkingDirectory:"
+  #               echo  "$(System.DefaultWorkingDirectory)"
+
+  #               echo  "Pipeline.Workspace:"
+  #               echo  "$(Pipeline.Workspace)"
+
+  #               echo "Structure of work folder of this pipeline:"
+  #               tree $(Agent.WorkFolder)/1
+
+  #     - job: Job2
+  #       steps:    
+  #         - task: CopyFiles@2
+  #           displayName: 'Copy Files'
+  #           inputs:
+  #             contents: 'Pipelines/Templates/PowerShell/test.ps1'
+  #             targetFolder: $(Build.ArtifactStagingDirectory)
+
+  #         - task: CmdLine@2
+  #           displayName: "CmdLine Task: Run a command line script using Bash on Linux and macOS and cmd.exe on Windows."
+  #           inputs:
+  #             script: |    
+  #               echo "Structure of work folder of this pipeline:"
+  #               tree $(Agent.WorkFolder)/1          
+
+  #         - task: PublishBuildArtifacts@1
+  #           displayName: 'Publish Artifacts'
+  #           inputs:
+  #             pathToPublish: $(Build.ArtifactStagingDirectory)
+  #             artifactName: 'scriptfile'

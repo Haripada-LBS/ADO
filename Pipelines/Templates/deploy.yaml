@@ -1,0 +1,17 @@
+    jobs: 
+    - job:
+      steps:
+        # download the artifact drop from the previous job
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            source: 'current'
+            artifact:  ${{ parameters.ArtifactName }}
+            path: '$(Pipeline.Workspace)'
+
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: ${{ parameters.ServiceConnection }}
+            appType: 'webApp'
+            appName:  ${{ parameters.AppName }}
+            resourceGroupName: ${{ parameters.ResourceGroupName }}
+            package: '$(Pipeline.Workspace)/**/*.zip'

@@ -1,0 +1,37 @@
+name: $(BuildDefinitionName)_$(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+  batch: true 
+  branches:
+    include:
+      - none
+
+# Don't run against PRs
+pr: none
+
+variables:
+- group: webapp-variables                   # name of a variable group
+
+stages :
+
+  - stage: deployBicep
+    jobs:
+      - job: "BicepConfigure"
+        steps: 
+          - task: Bash@3
+            displayName: 'Bicep Build'
+            inputs:
+              targetType: inline
+              script: |
+                az bicep build --file $(System.DefaultWorkingDirectory)/Pipelines/Templates/Bicep/main.bicep
+
+          - task: AzureCLI@2
+            displayName: 'Deploy Bicep Configuration'
+            inputs:
+              azureSubscription: $(ServiceConnection)
+              scriptType: bash
+              scriptLocation: inlineScript
+              addSpnToEnvironment: true
+              inlineScript: |
+                #!/bin/bash
+                az deployment group create -f $(System.DefaultWorkingDirectory)/Pipelines/Templates/Bicep/main.json -g test-rg

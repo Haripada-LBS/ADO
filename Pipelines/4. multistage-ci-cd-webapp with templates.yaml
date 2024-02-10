@@ -1,0 +1,35 @@
+trigger:
+- none
+
+pr: none
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+- name: buildConfiguration
+  value: 'Release'
+- group: webapp-variables
+
+stages:
+  - stage: Build
+    jobs: 
+      - template: Templates/build.yaml
+        parameters: 
+          buildConfiguration: ${{ variables.buildConfiguration }}
+          ArtifactName: 'webappartifact'        
+
+  - stage: Infra
+    jobs: 
+      - template: Templates/infra.yaml
+        parameters: 
+          ServiceConnection: $(ServiceConnection)
+
+  - stage: Deploy
+    jobs: 
+      - template: Templates/deploy.yaml
+        parameters: 
+          ServiceConnection: $(ServiceConnection)
+          AppName: 'samplewebapp89'
+          ArtifactName: 'webappartifact'
+          ResourceGroupName: 'test-rg'

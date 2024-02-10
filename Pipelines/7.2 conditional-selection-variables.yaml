@@ -1,0 +1,30 @@
+parameters:
+  - name: environment
+    displayName: Select Environment to deploy?
+    type: string
+    default: 'dev'
+    values:
+    - dev
+    - test
+    - prd
+ 
+variables:
+  - name: colour
+    ${{ if eq( parameters['environment'], 'dev') }}:
+      value: "red"
+    ${{ elseif eq( parameters['environment'], 'test' ) }}:
+      value: "yellow"
+    ${{ else }}:
+      value: "purple"
+
+stages:
+- stage: EnvironmentToDeploy
+  jobs:
+  - job: colour
+    steps:
+      - task: Bash@3
+        displayName: EnvironmentSelected
+        inputs:
+          targetType: inline
+          script: |
+            echo "The environment selected was ${{parameters.environment}} and colour ${{variables.colour}}"

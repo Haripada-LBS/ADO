@@ -1,0 +1,10 @@
+  jobs: 
+  - job: webinfradeploy
+    steps:
+      - task: AzurePowerShell@5
+        inputs:
+          azureSubscription: ${{ parameters.ServiceConnection}}
+          scriptType: filePath
+          scriptPath: 'Pipelines\Templates\PowerShell\webapp.ps1'           
+          azurePowerShellVersion: latestVersion
+          pwsh: true  

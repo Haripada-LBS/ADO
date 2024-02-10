@@ -1,0 +1,46 @@
+parameters:
+  - name: environment
+    displayName: Select Environment to deploy?
+    type: string
+    default: 'dev'
+    values:
+    - dev
+    - test
+    - prd
+ 
+stages:
+- ${{ if eq( parameters['environment'], 'dev') }}:
+  - stage: stage1
+    jobs:
+    - job: stage1job
+      steps:
+        - task: Bash@3
+          displayName: stageselected
+          inputs:
+            targetType: inline
+            script: |
+              echo "The stage selected was stage1 as environment: ${{parameters.environment}} was selected"
+
+- ${{ elseif eq( parameters['environment'], 'test') }}:
+  - stage: stage2
+    jobs:
+    - job: stage2job
+      steps:
+        - task: Bash@3
+          displayName: stageselected
+          inputs:
+            targetType: inline
+            script: |
+              echo "The stage selected was stage2 as environment: ${{parameters.environment}} was selected"
+
+- ${{ else }}:
+  - stage: stage3
+    jobs:
+    - job: stage3job
+      steps:
+        - task: Bash@3
+          displayName: stageselected
+          inputs:
+            targetType: inline
+            script: |
+              echo "The stage selected was stage3 as environment: ${{parameters.environment}} was selected"

@@ -1,0 +1,48 @@
+pr:
+  branches:
+    include:
+    - main
+    - feature
+    
+resources:
+  - repo: self
+
+variables:
+  - name: var1                                # name of a variable
+    value: 'tst1'              # value of the variable
+  - name: var2                                # name of a variable
+    value: 'pipeline-level var2'              # value of the variable
+  - name: variableGroups                                # name of a variable
+    value: 'ffc-demo-web-environment'              # value of the variable
+
+parameters:
+- name: env
+  displayName: Select env
+  type: string
+  default: snd1
+  values:
+  - snd1
+  - snd2
+  - tst1
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Stage1
+    jobs:  
+      - job: Job1
+        variables:
+          var1 : ${{ parameters.env}}
+        steps:
+          - task: CmdLine@2
+            displayName: "CmdLine Task: Run a command line script using Bash on Linux and macOS and cmd.exe on Windows."
+            inputs:
+              script: | 
+                echo "Print the contents of the file:"
+                # echo "PR Test"
+                # cat Pipelines/Templates/PowerShell/sample.txt
+                echo {{ parameters.env}}
+                echo ${{ replace('ffc-demo-web-environment', 'environment', parameters.env) }}
+
+
+  # '${{ parameters.env}}'

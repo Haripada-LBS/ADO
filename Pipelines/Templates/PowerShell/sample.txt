@@ -1,0 +1,3 @@
+Vehicle - Truck, Bus, Car
+Fruit - Apple, Orange
+Country -India, UK, US, Japan

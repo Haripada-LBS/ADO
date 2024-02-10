@@ -1,0 +1,25 @@
+# YAML file in the main branch
+schedules:
+- cron: '0 0 * * *'  #mm HH DD  MM DW
+  displayName: Daily midnight build
+  branches:
+    include:
+    - main
+    
+resources:
+  - repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Stage1
+    jobs:
+      - job: Job1
+        steps:
+          - task: CmdLine@2
+            displayName: "CmdLine Task: Run a command line script using Bash on Linux and macOS and cmd.exe on Windows."
+            inputs:
+              script: | 
+                echo "Print the contents of the file:"
+                cat Pipelines/Templates/PowerShell/sample.txt

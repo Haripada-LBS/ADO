@@ -1,0 +1,26 @@
+
+trigger:
+- none
+
+pr: none
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+- name: buildConfiguration
+  value: 'Release'
+- group: webapp-variables                   # name of a variable group
+
+stages:
+  - stage: Infra
+    jobs: 
+    - job: webinfradeploy
+      steps:
+        - task: AzurePowerShell@5
+          inputs:
+            azureSubscription: $(ServiceConnection)
+            scriptType: filePath
+            scriptPath: 'Pipelines\Templates\PowerShell\webapp.ps1'           
+            azurePowerShellVersion: latestVersion
+            pwsh: true  

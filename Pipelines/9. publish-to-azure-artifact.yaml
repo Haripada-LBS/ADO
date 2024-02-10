@@ -1,0 +1,82 @@
+trigger:
+- none
+
+pr: none
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+- name: buildConfiguration
+  value: 'Release'
+- group: webapp-variables                   # name of a variable group
+
+
+stages:
+  - stage: Build
+    jobs: 
+      - job:
+        steps:
+        - task: UseDotNet@2
+          displayName: 'Install .NET Core SDK'
+          inputs:
+            version: 6.x
+            performMultiLevelLookup: true
+            includePreviewVersions: true # Required for preview versions
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'restore'
+            projects: '**/*.csproj'
+            feedsToUse: 'select'
+            
+        - task: DotNetCoreCLI@2
+          displayName: 'dotnet build $(buildConfiguration)'
+          inputs:
+            command: 'build'
+            projects: '**/*.csproj'
+            arguments: '--configuration $(buildConfiguration)'
+
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: publish
+            publishWebProjects: True
+            arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+            zipAfterPublish: True
+
+        # this code takes all the files in $(Build.ArtifactStagingDirectory) and uploads them as an artifact of your build.
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: '$(Build.ArtifactStagingDirectory)' 
+            artifactName: 'webappartifact'  
+
+  # - stage: Infra
+  #   jobs: 
+  #   - job: webinfradeploy
+  #     steps:
+  #       - task: AzurePowerShell@5
+  #         inputs:
+  #           azureSubscription: $(ServiceConnection)
+  #           scriptType: filePath
+  #           scriptPath: 'Pipelines\Templates\PowerShell\webapp.ps1'           
+  #           azurePowerShellVersion: latestVersion
+  #           pwsh: true  
+
+  - stage: Deploy
+    jobs: 
+    - job:
+      steps:
+        # download the artifact drop from the previous job
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            source: 'current'
+            artifact: 'webappartifact'
+            path: '$(Pipeline.Workspace)'
+
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: $(ServiceConnection)
+            appType: 'webApp'
+            appName: 'samplewebapp89'
+            resourceGroupName: 'test-rg'
+            package: '$(Pipeline.Workspace)/**/*.zip'

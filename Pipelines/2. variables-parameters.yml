@@ -1,0 +1,104 @@
+trigger: 
+  - none
+  
+pr: none
+
+resources:
+  - repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+# pipeline-level
+variables:
+- name: var1                                # name of a variable
+  value: 'pipeline-level var1'              # value of the variable
+- name: var2                                # name of a variable
+  value: 'pipeline-level var2'              # value of the variable
+
+- group: webapp-variables                   # name of a variable group
+- template: 'Variables/build.yaml'          # template reference
+
+parameters:
+- name: image
+  displayName: Select Pool Image
+  type: string
+  default: ubuntu-latest
+  values:
+  - windows-latest
+  - ubuntu-latest
+  - macOS-latest
+
+stages:
+  - stage: Stage1
+    variables:    # stage-level
+      var1: 'stage1-var'
+    jobs:
+      - job: Job1
+        variables:  # job-level
+          var1: 'job1-var'
+        steps:        
+          - script: |
+              displayName: 'Print Variables'  
+
+              echo Pipeline Variable var1 = $(var1)
+              echo  Pipeline Variable var2 = $(var2)
+
+              echo Group Variable DeploymentName = $(DeploymentName) 
+              echo Group Variable Environment = $(Environment)  
+
+              echo Template Variable config = $(config)  
+              echo Template Variable vmImage = $(vmImage) 
+
+      - job: Job2
+        pool: 
+          vmImage: ${{ parameters.image }}
+        steps:
+          - script: echo building $(Build.BuildNumber) with ${{ parameters.image }}
+
+      - job: Job3
+        steps:
+          - script: |
+              echo BuildId $(Build.BuildId) 
+              echo BuildNumber $(Build.BuildNumber) 
+              echo BuildUri $(Build.BuildUri)                         
+
+  - stage: Stage2
+    variables:    # stage-level
+      var1: 'stage2-var'
+    jobs:
+      - job: Job1
+        steps:
+          - script: echo Hello, $(var1)
+            displayName: 'print var1'
+
+  - stage: Stage3
+    jobs:
+      - job: Job1
+        steps:
+          - script: echo Hello, $(var1)
+            displayName: 'print var1'
+
+      - job: Job2
+        steps:
+          - task: CmdLine@2
+            displayName: "CmdLine Task: Run a command line script using Bash on Linux and macOS and cmd.exe on Windows."
+            inputs:
+              script: |         
+                echo "Build.ArtifactStagingDirectory:" 
+                echo "$(Build.ArtifactStagingDirectory)"
+      
+                echo "Build.BinariesDirectory:" 
+                echo "$(Build.BinariesDirectory)"
+      
+                echo "Build.SourcesDirectory:"
+                echo "$(Build.SourcesDirectory)"
+
+                echo  "System.DefaultWorkingDirectory:"
+                echo  "$(System.DefaultWorkingDirectory)"
+
+                echo  "Pipeline.Workspace:"
+                echo  "$(Pipeline.Workspace)"
+
+                echo "Structure of work folder of this pipeline:"
+                tree $(Agent.WorkFolder)/1   

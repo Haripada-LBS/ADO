@@ -1,0 +1,34 @@
+resources:
+  repositories:
+  - repository: tools
+    type: git
+    name: MyProject/tools
+    ref: main
+    trigger:
+    - main
+    - release
+
+  - repository: MyGitHubRepo
+    type: github
+    endpoint: MyGitHubServiceConnection
+    name: MyGitHubOrgOrUser/MyGitHubRepo
+    ref: releases/123
+
+  - repository: MyOtherAzureReposGitRepository 
+    endpoint: OtherOrgAzureReposGitServiceConnection
+    type: git
+    name: OtherProject/MyAzureReposGitRepo
+
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+- checkout: MyGitHubRepo
+- checkout: tools
+- checkout: MyOtherAzureReposGitRepository
+
+- script: dir $(Build.SourcesDirectory)

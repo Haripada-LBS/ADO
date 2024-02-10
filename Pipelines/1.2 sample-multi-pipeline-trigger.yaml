@@ -1,0 +1,45 @@
+trigger:
+  - none
+
+variables:
+  imageName: windows-latest
+
+pool:
+  vmImage: $(imageName)
+
+stages:
+- stage: parent
+  jobs:
+  - job:
+    steps:        
+      - task: CmdLine@2
+        displayName: "CmdLine Task: Run a command line script using Bash on Linux and macOS and cmd.exe on Windows."
+        inputs:
+          script: | 
+            echo "Print the contents of the file:"
+            cat Pipelines/Templates/PowerShell/sample.txt
+
+- stage: child1
+  jobs:
+  - job:
+    steps:        
+    - script: echo "Trigger child1 pipeline"
+
+- stage: child2
+  jobs:
+  - job:
+    steps:        
+    - script: echo "Trigger child2 pipeline"
+
+- stage: child3
+  jobs:
+  - job:
+    steps:        
+    - script: echo "Trigger child3 pipeline"
+
+- stage: child4
+  jobs:
+  - job:
+    steps:        
+    - script: echo "Trigger child4 pipeline"
+
